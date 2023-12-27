@@ -192,7 +192,6 @@ void mcm_cuda_sha1_hash_batch(BYTE* in, WORD inlen, BYTE* out, WORD n_batch)
 
 int get_hash(char *start, char *all, int depth)
 {
-    // 20 because i love my laptop and I will not kill it
     if(depth > 20) {
         return 0;
     }
