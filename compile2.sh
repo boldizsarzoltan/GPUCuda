@@ -1,0 +1,1 @@
+nvcc sha1_1_par.cu -o sha1_1_par
