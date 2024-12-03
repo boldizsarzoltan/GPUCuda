@@ -1,1 +1,4 @@
-CMakeLists.txt not found in /home/zoli/projects/GPUCuda Select CMakeLists.txt
+/home/zoli/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/zoli/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/zoli/Documents/uni/GPU/cuda -B /home/zoli/Documents/uni/GPU/cuda/cmake-build-debug
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/zoli/Documents/uni/GPU/cuda/cmake-build-debug

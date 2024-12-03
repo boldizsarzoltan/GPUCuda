@@ -1,0 +1,4 @@
+# ninja log v6
+1	1996	1733211416890300975	CMakeFiles/cuda.dir/main.cu.o	304a38c147598d54
+1997	2026	1733211418886302897	CMakeFiles/cuda.dir/cmake_device_link.o	6ade80c5524e2708
+2026	2095	1733211418914302924	cuda	d5eebfbe6ac1c43f

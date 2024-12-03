@@ -1,0 +1,3 @@
+/home/zoli/Documents/uni/GPU/cuda/cmake-build-debug/CMakeFiles/cuda.dir
+/home/zoli/Documents/uni/GPU/cuda/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/zoli/Documents/uni/GPU/cuda/cmake-build-debug/CMakeFiles/rebuild_cache.dir

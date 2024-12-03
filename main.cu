@@ -1,29 +1,35 @@
+#include <iostream>
+#include <string.h>
 #include <stdio.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include "sha1.cuh"
-
 #include <stdlib.h>
 #include <memory.h>
 
-/****************************** MACROS ******************************/
-#define SHA1_BLOCK_SIZE 20              // SHA1 outputs a 20 byte digest
+typedef unsigned char BYTE;
+typedef unsigned int  WORD;
+typedef unsigned long long LONG;
 
-/**************************** DATA TYPES ****************************/
+#pragma once
+#define USE_MD2 1
+#define USE_MD5 1
+#define USE_SHA1 1
+#define USE_SHA256 1
+
+#define CUDA_HASH 1
+#define OCL_HASH 0
+#define SHA1_BLOCK_SIZE 20
+
 typedef struct {
-	BYTE data[64];
-	WORD datalen;
-	unsigned long long bitlen;
-	WORD state[5];
-	WORD k[4];
+    BYTE data[64];
+    WORD datalen;
+    unsigned long long bitlen;
+    WORD state[5];
+    WORD k[4];
 } CUDA_SHA1_CTX;
 
-/****************************** MACROS ******************************/
 #ifndef ROTLEFT
 #define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
 #endif
 
-/*********************** FUNCTION DEFINITIONS ***********************/
 __device__  __forceinline__ void cuda_sha1_transform(CUDA_SHA1_CTX *ctx, const BYTE data[])
 {
 	WORD a, b, c, d, e, i, j, t, m[80];
@@ -169,6 +175,7 @@ __global__ void kernel_sha1_hash(BYTE* indata, WORD inlen, BYTE* outdata, WORD n
 	cuda_sha1_final(&ctx, out);
 }
 
+
 void mcm_cuda_sha1_hash_batch(BYTE* in, WORD inlen, BYTE* out, WORD n_batch)
 {
 	BYTE *cuda_indata;
@@ -179,71 +186,20 @@ void mcm_cuda_sha1_hash_batch(BYTE* in, WORD inlen, BYTE* out, WORD n_batch)
 
 	WORD thread = 256;
 	WORD block = (n_batch + thread - 1) / thread;
+
 	kernel_sha1_hash << < block, thread >> > (cuda_indata, inlen, cuda_outdata, n_batch);
 	cudaMemcpy(out, cuda_outdata, SHA1_BLOCK_SIZE * n_batch, cudaMemcpyDeviceToHost);
 	cudaDeviceSynchronize();
 	cudaError_t error = cudaGetLastError();
 	if (error != cudaSuccess) {
-		printf("Error cuda sha1 hash:%d %s \n", error, cudaGetErrorString(error));
+		printf("Error cuda sha1 hash: %s \n", cudaGetErrorString(error));
 	}
 	cudaFree(cuda_indata);
 	cudaFree(cuda_outdata);
+	
 }
 
-int get_hash(char *start, char *all, int depth)
-{
-    if(depth > 20) {
-        return 0;
-    }
-    BYTE* cuda_sha1_start;
-    WORD cuda_sha1_start_size;
-    WORD cuda_sha1_res_size;
-    BYTE* cuda_sha1_res;
-    cuda_sha1_res_size = reinterpret_cast<WORD>((unsigned int)64);
-    cuda_sha1_res = (BYTE*)malloc(64 * SHA1_BLOCK_SIZE * sizeof(BYTE));
-    char buffer[40];
-    char temp[40];
-    char target[40];
-    depth++;
-    for(int i = 97; i < 123; i++) {
-        memset(target, '\0', sizeof(target));
-        memset(buffer, '\0', sizeof(buffer));
-        memset(temp, '\0', sizeof(temp));
-        sprintf(target, "%s%c", start, i);
-        cuda_sha1_start = reinterpret_cast<BYTE*>(target);
-        cuda_sha1_start_size = reinterpret_cast<WORD>((unsigned int)strlen(target));
-        mcm_cuda_sha1_hash_batch(cuda_sha1_start, cuda_sha1_start_size, cuda_sha1_res, cuda_sha1_res_size);
-        for(int z =0;z<20;z++) {
-            sprintf(temp, "%02x", cuda_sha1_res[z]);
-            strcat(buffer, temp);
-        }
-        printf("Comparing:%s %s %s %d\n", target, buffer, all, strcmp(buffer, all));
-        if(strcmp(buffer, all) == 0 ){
-            printf("Found target:%s\n", target);
-            return 1;
-        }
-    }
-    for(int i = 97; i < 123; i++) {
-        sprintf(target, "%s%c", start, i);
-        if(1 == get_hash(target, all, depth)) {
-            return 1;
-        }
-    }
+int main() {
+    std::cout << "Hello, World!" << std::endl;
     return 0;
-}
-
-int main()
-{
-    char start[256], all[256];
-    printf("Start:");
-    fgets(start, sizeof(start), stdin);
-    size_t ln = strlen(start)-1;
-    if (start[ln] == '\n')
-        start[ln] = '\0';
-    printf("All:");
-    fgets(all, sizeof(all), stdin);
-    size_t ln_all = strlen(all)-1;
-    if (all[ln_all] == '\n')
-        all[ln_all] = '\0';
-    get_hash(start, all, 0);
 }
